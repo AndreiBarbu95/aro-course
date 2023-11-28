@@ -1,0 +1,13 @@
+docker build -t my-aro-web-app . #Builds a Docker image from the Dockerfile in the current directory and tags it with the name my-aro-web-app. The . indicates the current directory as the build context
+
+docker images #Lists all the Docker images that are available on the local machine
+
+docker run -p 80:8080 my-aro-web-app:latest #Runs a container from the my-aro-web-app image and maps port 80 on the host machine to port 8080 on the container
+
+docker ps -a #Shows all the containers that are running or have exited on the local machine. The -a option means “all” containers
+
+docker rm <container-id> #Removes the container
+
+docker tag my-aro-web-app <repo>/my-aro-web-app:v1 #Creates a new tag
+
+docker push <repo>/my-aro-web-app:v1 #Pushes the image to Docker Hub
