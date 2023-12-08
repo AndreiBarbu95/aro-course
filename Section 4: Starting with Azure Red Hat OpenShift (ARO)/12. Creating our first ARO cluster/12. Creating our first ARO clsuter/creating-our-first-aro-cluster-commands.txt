@@ -1,7 +1,0 @@
-az login --use-device-code
-
-az account set --subscription <subscription-id>
-
-az aro get-versions --location eastus -o table
-
-az aro create --resource-group aro-rg --name aro-cluster --vnet aro-vnet --master-subnet master-subnet --worker-subnet worker-subnet --client-id <client-id> --client-secret <client-secret> --worker-vm-size Standard_F4s_v2 --pull-secret @pull-secret.txt
