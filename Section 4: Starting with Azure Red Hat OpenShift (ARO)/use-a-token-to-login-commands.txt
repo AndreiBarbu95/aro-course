@@ -1,0 +1,24 @@
+oc login https://<apiserver>:6443 -u kubeadmin -p <password>
+
+oc whoami -t
+
+oc get useroauthaccesstokens
+oc get oauthaccesstokens
+
+oc login --token=<token> --server=https://<apiserver>:6443
+
+oc whoami -t
+
+oc whoami
+
+oc get useroauthaccesstokens
+
+oc delete useroauthaccesstokens <useroauthaccesstokens-name>
+
+#Wait a little to propagate
+
+oc get pod
+
+oc whoami
+
+oc login --token=sha256~<token> --server=https://<apiserver>:6443
