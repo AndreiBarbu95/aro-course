@@ -1,0 +1,31 @@
+oc get machineset -A
+
+oc get machineset -n openshift-machine-api <machine-set-name> -o yaml > example-machine-set.yaml
+
+vim new-machineset.yaml
+
+oc apply -f new-machineset.yaml
+
+oc get machineset -A
+
+oc get machine -A
+
+oc get node
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-new-machine
+spec:
+  containers:
+  - name: nginx
+    image: bitnami/nginx
+  nodeName: aro-cluster-v75vf-worker2-eastus1-xghgn
+EOF
+
+oc get pod -o wide
+
+oc delete pod test-new-machine
+
+oc delete machineset -n openshift-machine-api

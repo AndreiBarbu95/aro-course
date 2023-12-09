@@ -1,0 +1,73 @@
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  annotations:
+    machine.openshift.io/GPU: "0"
+    machine.openshift.io/memoryMb: "8192"
+    machine.openshift.io/vCPU: "4"
+  creationTimestamp: "2023-12-03T07:20:53Z"
+  generation: 1
+  labels:
+    machine.openshift.io/cluster-api-cluster: aro-cluster-v75vf
+    machine.openshift.io/cluster-api-machine-role: worker
+    machine.openshift.io/cluster-api-machine-type: worker
+  name: aro-cluster-v75vf-worker-eastus1
+  namespace: openshift-machine-api
+  resourceVersion: "21515"
+  uid: 5efd7a4a-4d49-46f4-a049-ec6a9e9d4201
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: aro-cluster-v75vf
+      machine.openshift.io/cluster-api-machineset: aro-cluster-v75vf-worker-eastus1
+  template:
+    metadata:
+      labels:
+        machine.openshift.io/cluster-api-cluster: aro-cluster-v75vf
+        machine.openshift.io/cluster-api-machine-role: worker
+        machine.openshift.io/cluster-api-machine-type: worker
+        machine.openshift.io/cluster-api-machineset: aro-cluster-v75vf-worker-eastus1
+    spec:
+      lifecycleHooks: {}
+      metadata: {}
+      providerSpec:
+        value:
+          acceleratedNetworking: true
+          apiVersion: machine.openshift.io/v1beta1
+          credentialsSecret:
+            name: azure-cloud-credentials
+            namespace: openshift-machine-api
+          diagnostics: {}
+          image:
+            offer: aro4
+            publisher: azureopenshift
+            resourceID: ""
+            sku: aro_412
+            version: 412.86.20230503
+          kind: AzureMachineProviderSpec
+          location: eastus
+          metadata:
+            creationTimestamp: null
+          networkResourceGroup: aro-rg
+          osDisk:
+            diskSettings: {}
+            diskSizeGB: 128
+            managedDisk:
+              storageAccountType: Premium_LRS
+            osType: Linux
+          publicIP: false
+          publicLoadBalancer: aro-cluster-v75vf
+          resourceGroup: aro-oevcgwt2
+          subnet: worker-subnet
+          userDataSecret:
+            name: worker-user-data
+          vmSize: Standard_F4s_v2
+          vnet: aro-vnet
+          zone: "1"
+status:
+  availableReplicas: 1
+  fullyLabeledReplicas: 1
+  observedGeneration: 1
+  readyReplicas: 1
+  replicas: 1

@@ -1,0 +1,57 @@
+oc get node
+
+oc debug node/<worker-node>
+
+chroot /host
+
+systemctl cat kubelet
+
+journalctl -b -f -u kubelet.service
+
+oc apply -f - <<EOF
+ apiVersion: machineconfiguration.openshift.io/v1
+ kind: MachineConfig
+ metadata:
+   labels:
+     machineconfiguration.openshift.io/role: worker
+   name: 99-worker-kubelet-loglevel
+ spec:
+   config:
+     ignition:
+       version: 3.2.0
+     systemd:
+       units:
+         - name: kubelet.service
+           enabled: true
+           dropins:
+             - name: 30-logging.conf
+               contents: |
+                 [Service]
+                 Environment="KUBELET_LOG_LEVEL=8"
+EOF
+
+oc get node -w
+
+oc debug node/<worker-node>
+
+chroot /host
+
+uptime
+
+journalctl -b -f -u kubelet.service
+
+systemctl cat kubelet
+
+oc delete mc 99-worker-kubelet-loglevel
+
+oc debug node/<worker-node>
+
+chroot /host
+
+uptime
+
+journalctl -b -f -u kubelet.service
+
+systemctl cat kubelet
+
+oc get mc

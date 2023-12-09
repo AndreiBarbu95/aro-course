@@ -1,0 +1,19 @@
+oc api-resources | grep -i machine
+
+oc get machineset -n openshift-machine-api
+
+oc get machine -n openshift-machine-api
+
+oc get node
+
+oc get machinehealthcheck -n openshift-machine-api
+
+oc get machineconfigpool
+
+oc get machineconfig
+
+oc get kubeletconfig
+
+oc get clusterautoscaler
+
+oc get machineautoscaler -A

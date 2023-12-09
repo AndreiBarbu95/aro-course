@@ -1,0 +1,61 @@
+apiVersion: machine.openshift.io/v1beta1
+kind: MachineSet
+metadata:
+  labels:
+    machine.openshift.io/cluster-api-cluster: aro-cluster-v75vf
+    machine.openshift.io/cluster-api-machine-role: worker
+    machine.openshift.io/cluster-api-machine-type: worker
+  name: aro-cluster-v75vf-worker2-eastus1
+  namespace: openshift-machine-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      machine.openshift.io/cluster-api-cluster: aro-cluster-v75vf
+      machine.openshift.io/cluster-api-machineset: aro-cluster-v75vf-worker2-eastus1
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        machine.openshift.io/cluster-api-cluster: aro-cluster-v75vf
+        machine.openshift.io/cluster-api-machine-role: worker
+        machine.openshift.io/cluster-api-machine-type: worker
+        machine.openshift.io/cluster-api-machineset: aro-cluster-v75vf-worker2-eastus1
+    spec:
+      metadata:
+        creationTimestamp: null
+      providerSpec:
+        value:
+          apiVersion: azureproviderconfig.openshift.io/v1beta1
+          credentialsSecret:
+            name: azure-cloud-credentials
+            namespace: openshift-machine-api
+          image:
+            offer: aro4
+            publisher: azureopenshift
+            resourceID: ""
+            sku: aro_412
+            version: 412.86.20230503
+          internalLoadBalancer: ""
+          kind: AzureMachineProviderSpec
+          location: eastus
+          metadata:
+            creationTimestamp: null
+          natRule: null
+          networkResourceGroup: aro-rg
+          osDisk:
+            diskSizeGB: 128
+            managedDisk:
+              storageAccountType: Premium_LRS
+            osType: Linux
+          publicIP: false
+          publicLoadBalancer: aro-cluster-v75vf
+          resourceGroup: aro-oevcgwt2
+          sshPrivateKey: ""
+          sshPublicKey: ""
+          subnet: worker-subnet2
+          userDataSecret:
+            name: worker-user-data
+          vmSize: Standard_F4s_v2
+          vnet: aro-vnet
+          zone: "1"
