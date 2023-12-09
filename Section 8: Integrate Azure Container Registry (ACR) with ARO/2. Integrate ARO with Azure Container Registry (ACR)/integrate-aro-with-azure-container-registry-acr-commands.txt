@@ -1,0 +1,28 @@
+oc new-project acr-project
+
+oc create secret docker-registry acr-secret --docker-server=<acr-name>.azurecr.io --docker-username=<acr-name> --docker-password=<acr-password>
+
+oc get secret acr-secret
+
+oc secrets link -h
+
+oc secrets link default acr-secret --for=pull
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: acr-pod
+spec:
+  containers:
+  - name: acr-pod
+    image: <acr-name>.azurecr.io/my-aro-web-app:v1
+  imagePullSecrets:
+  - name: acr-secret
+EOF
+
+oc get pod
+
+oc describe pod acr-pod
+  
+oc delete project acr-project

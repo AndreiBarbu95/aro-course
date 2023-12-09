@@ -1,0 +1,19 @@
+oc get clusterrolebinding --sort-by=.metadata.creationTimestamp
+
+oc get clusterrolebinding cluster-admin-0 -o yaml
+
+oc get clusterrolebinding view -o yaml
+
+oc get clusterrolebinding cluster-admin-1 -o yaml
+
+oc delete clusterrolebinding cluster-admin-0 view cluster-admin-1
+
+oc delete secret -n openshift-config htpasswd-secret
+
+cd /path/of/your/oauth/backup
+
+cat oauth-backup.yaml
+
+oc edit oauth cluster #remove lines related to identity providers
+
+oc get pod -n openshift-authentication -w

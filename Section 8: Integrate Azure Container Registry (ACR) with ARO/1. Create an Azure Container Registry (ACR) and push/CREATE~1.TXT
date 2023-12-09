@@ -1,0 +1,9 @@
+docker images #Docker needs to run on your machine
+
+docker tag my-aro-web-app:latest <acrname>.azurecr.io/my-aro-web-app:v1
+
+docker login <acrname>.azurecr.io
+
+docker push <acrname>.azurecr.io/my-aro-web-app:v1
+
+az acr import --name <acrname> --source docker.io/bitnami/nginx:latest --image bitnami-nginx:aro #The import feature in ACR allows you to copy container images from another registry to an Azure container registry without using Docker commands.

@@ -1,0 +1,15 @@
+domain=$(az aro show -g aro-rg -n aro-cluster --query clusterProfile.domain -o tsv)
+
+location=$(az aro show -g aro-rg -n aro-cluster --query location -o tsv)
+
+echo "OAuth callback URL: https://oauth-openshift.apps.$domain.$location.aroapp.io/oauth2callback/MicrosoftEntra"
+
+apiServer=$(az aro show -g aro-rg -n aro-cluster --query apiserverProfile.url -o tsv)
+
+kubeadminpass=$(az aro list-credentials -g aro-rg -n aro-cluster --query kubeadminPassword -o tsv)
+
+oc login $apiServer -u kubeadmin -p $kubeadminpass
+
+oc get users
+
+oc adm policy add-cluster-role-to-user cluster-admin <name>
