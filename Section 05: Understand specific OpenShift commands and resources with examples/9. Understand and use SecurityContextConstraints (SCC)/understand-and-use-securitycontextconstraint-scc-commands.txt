@@ -1,0 +1,29 @@
+oc get scc #restricted-v2 is the most restrictive and the one used by default for any authenticated user
+
+oc get scc <anyscc,just-to-explore> -o yaml
+
+oc new-project test-scc
+
+oc create deploy test-scc-deploy --image nginx
+
+oc get pod
+
+oc logs <test-scc-deploy>
+
+oc get pod <test-scc-deploy> -o yaml #see the SCC used
+
+oc get scc
+
+oc create sa test-scc-sa
+
+oc adm policy add-scc-to-user anyuid -z test-scc-sa
+
+oc set serviceaccount deployment test-scc-deploy test-scc-sa
+
+oc get pod
+
+oc logs <test-scc-deploy>
+
+oc rsh <test-scc-deploy> whoami
+
+oc delete project test-scc
