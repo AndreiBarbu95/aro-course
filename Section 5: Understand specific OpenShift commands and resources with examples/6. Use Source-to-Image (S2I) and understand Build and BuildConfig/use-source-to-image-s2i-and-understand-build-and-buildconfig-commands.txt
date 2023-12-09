@@ -1,0 +1,29 @@
+oc new-project test-s2i
+
+oc new-app https://github.com/AndreiBarbu95/my-python-web-app.git
+
+oc get pod,build,buildconfig
+
+oc logs my-python-web-app-1-build -f
+
+oc get pod
+
+oc logs build/my-python-web-app-1
+
+oc get svc
+
+oc expose svc my-python-web-app
+
+oc get route
+
+#Edit something in app.py
+
+oc start-build my-python-web-app
+
+oc get pod,build,buildconfig
+
+oc logs my-python-web-app-2-build -f
+
+oc get pod
+
+oc delete project test-s2i

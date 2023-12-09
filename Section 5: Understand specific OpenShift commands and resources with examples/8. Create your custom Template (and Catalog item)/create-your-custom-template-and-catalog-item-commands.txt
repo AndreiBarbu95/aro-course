@@ -1,0 +1,3 @@
+oc adm create-bootstrap-project-template -o yaml > template.yaml #generates a draft YAML that can be modified to create the template
+
+oc get template -n openshift httpd-example -o yaml > myapp-template.yaml

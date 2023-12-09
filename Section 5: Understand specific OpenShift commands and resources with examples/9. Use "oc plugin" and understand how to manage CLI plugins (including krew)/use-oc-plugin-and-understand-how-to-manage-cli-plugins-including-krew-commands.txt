@@ -1,0 +1,21 @@
+oc plugin -h
+
+oc plugin list
+
+oc krew -h
+
+oc krew search
+
+oc get pod -A | grep dns
+
+oc krew install grep
+
+oc plugin list
+
+oc grep pod dns -A
+
+oc krew uninstall grep
+
+oc grep pod dns -A #won't work anymore
+
+oc plugin list

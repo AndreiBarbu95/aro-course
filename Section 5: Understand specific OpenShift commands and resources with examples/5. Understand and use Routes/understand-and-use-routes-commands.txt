@@ -1,0 +1,35 @@
+oc project my-aro-web-app
+
+oc expose -h
+
+oc get svc
+
+oc get route
+
+oc expose svc my-aro-web-app
+
+oc get route
+
+curl <hostname>
+
+oc get svc -n openshift-ingress
+
+nslookup <hostname> 
+
+oc describe svc router-default -n openshift-ingress
+
+oc get pod -o wide -n openshift-ingress
+
+oc exec -it <router-default-pod> -n openshift-ingress -- sh
+
+cat haproxy.config
+
+cat haproxy.config | grep my-aro-web-app
+
+oc delete pod <my-aro-web-app-pod>
+
+cat haproxy.config | grep my-aro-web-app
+
+oc get ingresscontroller -n openshift-ingress-operator
+
+oc get ingresscontroller -n openshift-ingress-operator default -o yaml

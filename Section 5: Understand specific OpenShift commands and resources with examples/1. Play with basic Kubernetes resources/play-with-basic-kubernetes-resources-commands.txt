@@ -1,0 +1,41 @@
+oc create ns kubernetes-resources
+
+oc config set-context --current --namespace=kubernetes-resources
+
+oc run net-tools --image quay.io/openshift/origin-network-tools -- sleep infinity
+
+oc run my-aro-web-app-pod --image andreibarbu95/my-aro-web-app:v1
+
+oc get pod -o wide
+
+oc rsh net-tools
+
+curl <my-aro-web-app-pod-ip>:8080 #from net-tools pod
+
+curl <my-aro-web-app-pod-ip>:8080/secret #from net-tools pod
+
+cat kubernetes-resources.yaml
+
+oc apply -f kubernetes-resources.yaml
+
+oc get pod,deploy,rs,svc,secret,cm -o wide
+
+oc get pod -o wide
+
+curl <flask-app-deployment-pod-ip>:8080/secret #from net-tools pod
+
+oc get secret api-key-secret -o yaml
+
+echo "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXo=" | base64 -d
+
+oc get svc -o wide
+
+curl <flask-app-deployment-svc-ip>/secret #from net-tools pod
+
+oc delete pod <flask-app-deployment-pod>
+
+oc get pod -o wide
+
+curl <flask-app-deployment-svc-ip>/secret #from net-tools pod
+
+oc delete ns kubernetes-resources

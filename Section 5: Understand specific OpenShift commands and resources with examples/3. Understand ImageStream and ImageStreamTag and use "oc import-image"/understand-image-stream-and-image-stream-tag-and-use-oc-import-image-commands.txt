@@ -1,0 +1,15 @@
+oc project test-registry
+
+oc import-image -h
+
+oc import-image alpine:latest --confirm
+
+oc get is #you can add "-A" to view the resources in all namespaces/projects
+
+oc get istag #you can add "-A" to view the resources in all namespaces/projects
+
+oc get image #you can add "-A" to view the resources in all namespaces/projects
+
+oc get imagetag #you can add "-A" to view the resources in all namespaces/projects
+
+oc delete project test-registry

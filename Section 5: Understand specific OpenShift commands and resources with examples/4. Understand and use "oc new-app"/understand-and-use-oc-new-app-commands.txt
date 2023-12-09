@@ -1,0 +1,9 @@
+oc new-app -h
+
+oc new-project my-aro-web-app
+
+oc new-app andreibarbu95/my-aro-web-app:v1
+
+oc get pod,deploy,svc
+
+oc get is,istag,imagetag

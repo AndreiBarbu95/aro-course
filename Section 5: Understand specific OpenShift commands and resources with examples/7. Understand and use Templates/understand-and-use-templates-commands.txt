@@ -1,0 +1,17 @@
+oc get template -n openshift
+
+oc describe template httpd-example -n openshift 
+
+oc get template httpd-example -o yaml -n openshift 
+
+oc process --parameters httpd-example -n openshift
+
+oc new-project test-template
+
+oc new-app --template httpd-example
+
+oc get buildconfig,deploymentconfig,imagestream,svc,routes
+
+oc get pod
+
+oc delete project test-template

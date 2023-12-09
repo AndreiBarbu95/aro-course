@@ -1,0 +1,67 @@
+#Access the registry externally
+oc get route -A | grep -i registry
+
+oc patch config.imageregistry.operator.openshift.io/cluster --patch='{"spec":{"defaultRoute":true}}' --type=merge
+
+oc patch config.imageregistry.operator.openshift.io/cluster --patch='[{"op": "add", "path": "/spec/disableRedirect", "value": true}]' --type=json
+
+oc get route -n openshift-image-registry default-route --template='{{ .spec.host }}'
+
+oc get route -n openshift-image-registry default-route
+
+TOKEN=$(oc whoami -t)
+
+REGISTRY_HOST=$(oc get route -n openshift-image-registry default-route --template='{{ .spec.host }}')
+
+curl -k -H "Authorization: Bearer ${TOKEN}" "https://${REGISTRY_HOST}/v2/_catalog" | jq .
+
+curl -k -H "Authorization: Bearer ${TOKEN}" "https://${REGISTRY_HOST}/v2/openshift/redis/tags/list" | jq .
+
+oc new-project test-registry
+
+docker login -u kubeadmin -p $(oc whoami -t) ${REGISTRY_HOST}
+
+docker images
+
+docker tag andreibarbu95/my-aro-web-app:v1 ${REGISTRY_HOST}/test-registry/test-registry-app:v1
+
+docker images
+
+docker push ${REGISTRY_HOST}/test-registry/test-registry-app:v1
+
+curl -k -H "Authorization: Bearer ${TOKEN}" "https://${REGISTRY_HOST}/v2/_catalog" | jq .
+
+oc get istag
+oc get imagetag
+
+docker pull ${REGISTRY_HOST}/openshift/redis:6-el9
+
+docker images
+
+oc edit config.imageregistry.operator.openshift.io/cluster #to remove the OpenShift Route associated with the image registry, remove the fields defaultRoute: true and disableRedirect: true
+
+#Access the registry internally
+
+oc get svc image-registry -n openshift-image-registry
+
+oc whoami -t
+
+oc get node
+
+oc debug node/<nodename>
+
+chroot /host
+
+curl -k -H "Authorization: Bearer <token>" "https://image-registry.openshift-image-registry.svc.cluster.local:5000/v2/_catalog" | jq .
+
+curl -k -H "Authorization: Bearer <token>" "https://image-registry.openshift-image-registry.svc.cluster.local:5000/v2/test-registry/test-registry-app/tags/list" | jq .
+
+podman images
+
+podman login -u kubeadmin -p <token> image-registry.openshift-image-registry.svc.cluster.local:5000
+
+podman images | grep -i test-registry
+
+podman pull image-registry.openshift-image-registry.svc.cluster.local:5000/test-registry/test-registry-app:v1
+
+podman images | grep -i test-registry

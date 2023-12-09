@@ -1,0 +1,20 @@
+oc create serviceaccount demo-user -n default
+
+oc create clusterrolebinding demo-user-binding --clusterrole cluster-admin --serviceaccount default:demo-user
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: demo-user-secret
+  namespace: default
+  annotations:
+    kubernetes.io/service-account.name: demo-user
+type: kubernetes.io/service-account-token
+EOF
+
+oc get secret -n default | grep -i demo-user-token
+
+TOKEN=$(oc get secret demo-user-token-q8g8f -o jsonpath='{$.data.token}' | base64 -d | sed 's/$/\n/g')
+
+echo $TOKEN
