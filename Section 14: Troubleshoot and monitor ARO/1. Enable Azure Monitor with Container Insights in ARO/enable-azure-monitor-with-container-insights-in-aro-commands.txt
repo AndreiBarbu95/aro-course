@@ -1,0 +1,13 @@
+az extension list -o table | grep k8s-extension
+
+az k8s-extension create --name azuremonitor-containers --cluster-name arc-aro --resource-group aro-rg --cluster-type connectedClusters --extension-type Microsoft.AzureMonitor.Containers --configuration-settings amalogs.useAADAuth=false logAnalyticsWorkspaceResourceID=<logAnalyticsWorkspaceResourceID>
+
+oc get pod -n kube-system
+
+oc new-project test-monitor-troubleshoot
+
+oc create deploy busybox --image busybox
+
+oc create deploy image-not-exist --image bitnami/nginx:not-exist
+
+oc get pod

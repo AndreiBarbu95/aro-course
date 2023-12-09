@@ -1,0 +1,15 @@
+oc get svc -n openshift-ingress
+
+oc new-project app
+
+oc new-app andreibarbu95/my-aro-web-app:v1
+
+oc expose svc my-aro-web-app
+
+oc get route
+
+curl http://<route-host>
+
+siege -d 1 -c 60 -t 120s http://<route-host> #Siege tests web server performance by simulating users. The command runs 60 users for 120 seconds, each waiting up to 1 second between requests.
+
+nslookup <route-host>

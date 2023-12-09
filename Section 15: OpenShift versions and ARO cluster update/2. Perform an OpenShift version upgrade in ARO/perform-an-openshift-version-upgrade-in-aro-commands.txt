@@ -1,0 +1,17 @@
+oc adm upgrade channel <channel>
+
+#Example: oc adm upgrade channel stable-13
+
+oc adm upgrade --to=<cluster-version>
+
+#Example: oc adm upgrade --to=4.13.23
+
+oc get clusterversion
+
+oc -n openshift-config patch cm admin-acks --patch '{"data":{"ack-4.12-kube-1.26-api-removals-in-4.13":"true"}}' --type=merge #from Red Hat docs
+
+oc get co
+
+oc get node
+
+oc get node -o wide

@@ -1,0 +1,17 @@
+oc project test-monitor-troubleshoot
+
+oc adm top node
+
+oc adm top pod
+
+oc adm top pod -A
+
+oc adm node-logs -h
+
+oc adm node-logs --role worker -u kubelet
+
+oc get co
+
+oc get events -A | grep -e warn -e fail -e error
+
+oc adm must-gather #this will create a file that can be sent to support

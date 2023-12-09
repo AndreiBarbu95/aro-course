@@ -1,0 +1,39 @@
+oc get mcp
+
+oc get mcp worker -o yaml
+
+oc get co
+
+oc get secret -n kube-system azure-credentials
+
+oc get secret -n kube-system azure-credentials -o yaml
+
+echo "N2ViOTc2ZmQtM2Y4MS00MGVmLThlOTAtN2E5MTczNTk1Zjgz" | base64 -d
+
+echo "RFpWOFF+cVlVQU1xSlViWk1IZHBpdHRpbzV0bnJDZFRCc08uUGM5WQ==" | base64 -d
+
+oc get pdb -A
+
+oc new-project test-pdb
+
+oc create deploy nginx-test --replicas 3 --image bitnami/nginx
+
+oc get pod --show-labels
+
+oc create poddisruptionbudget nginx-pdb --selector=app=nginx-test --min-available 3
+
+oc get pdb
+
+oc scale deploy nginx-test --replicas 4
+
+oc get pdb
+
+oc scale deploy nginx-test --replicas 3
+
+oc edit pdb
+
+oc get pdb
+
+oc delete project test-pdb
+
+oc project default

@@ -1,0 +1,32 @@
+oc project test-monitor-troubleshoot
+
+oc apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oomkilled-test
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: oomkilled-test
+  template:
+    metadata:
+      labels:
+        app: oomkilled-test
+    spec:
+      containers:
+      - name: oomkilled-test-ctr
+        image: polinux/stress
+        resources:
+          requests:
+            memory: "50Mi"
+          limits:
+            memory: "100Mi"
+        command: ["stress"]
+        args: ["--vm", "1", "--vm-bytes", "250M", "--vm-hang", "1"]
+EOF
+
+oc get pod
+
+oc delete project test-monitor-troubleshoot app

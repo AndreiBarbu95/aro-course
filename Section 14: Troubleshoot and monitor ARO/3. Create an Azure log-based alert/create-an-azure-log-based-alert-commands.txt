@@ -1,0 +1,10 @@
+oc project test-monitor-troubleshoot
+
+oc get pod
+
+oc edit deploy busybox #add the below under spec.template.spec.containers
+
+        command: ["sleep"]
+        args: ["infinity"]
+
+oc get pod
