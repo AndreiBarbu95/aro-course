@@ -1,0 +1,19 @@
+az extension list -o table #if connectedk8s is not installed, install it with "az extension add --name connectedk8s"
+
+oc config get-contexts
+
+oc config current-context
+
+#To set the context you can run "oc config use-context <context>"
+
+az provider show -n Microsoft.Kubernetes -o table #if not Registered run "az provider register --namespace Microsoft.Kubernetes"
+
+az provider show -n Microsoft.KubernetesConfiguration -o table #if not Registered run "az provider register --namespace Microsoft.KubernetesConfiguration"
+
+az provider show -n Microsoft.ExtendedLocation -o table #if not Registered run "az provider register --namespace Microsoft.ExtendedLocation"
+
+az connectedk8s connect --name arc-aro --resource-group aro-rg
+
+helm ls -A
+
+oc get all -n azure-arc
