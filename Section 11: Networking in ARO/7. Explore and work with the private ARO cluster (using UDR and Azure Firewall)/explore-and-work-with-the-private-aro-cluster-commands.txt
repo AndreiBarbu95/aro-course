@@ -1,0 +1,33 @@
+oc get svc -n openshift-ingress
+
+oc get svc -n openshift-ingress router-default -o yaml
+
+oc get pod -A
+
+oc describe pod -n openshift-marketplace <certified-operators-pod>
+
+oc get node
+
+oc debug node/<node>
+
+curl -v microsoft.com
+
+curl ifconfig.me
+
+ssh azureuser@<azure-vm-public-ip>
+
+oc new-project test-outbound
+
+oc create deploy my-aro-web-app --image andreibarbu95/my-aro-web-app:v1
+
+oc get pod
+
+oc describe pod <my-aro-web-app-pod>
+
+#Create the rules in the Azure Firewall
+
+curl ifconfig.me
+
+curl microsoft.com:443
+
+oc get pod #the pod got in Running meaning the image was pulled

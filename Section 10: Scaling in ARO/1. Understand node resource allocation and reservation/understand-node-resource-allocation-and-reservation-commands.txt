@@ -1,0 +1,13 @@
+oc get node
+
+oc describe node <node>
+
+oc debug node/<node>
+
+chroot /host
+
+cat /etc/node-sizing.env
+
+oc get kubeletconfig
+
+oc get kubeletconfig dynamic-node -o yaml

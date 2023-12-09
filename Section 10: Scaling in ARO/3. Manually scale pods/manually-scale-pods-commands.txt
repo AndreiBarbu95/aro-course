@@ -1,0 +1,13 @@
+oc new-project test-scale
+
+oc new-app --name test-scale --image bitnami/nginx
+
+oc get deploy,pod
+
+oc scale deploy test-scale --replicas 1
+or
+oc edit deploy test-scale #modify replicas
+
+oc get pod
+
+oc delete project test-scale

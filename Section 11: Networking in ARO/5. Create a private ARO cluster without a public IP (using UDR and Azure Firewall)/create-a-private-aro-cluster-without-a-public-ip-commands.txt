@@ -1,0 +1,7 @@
+chmod +x deploy-aro-private-udr.sh
+
+sh deploy-aro-private-udr.sh
+
+oc login https://<api-server-url>.io:6443/ -u kubeadmin -p <kubeadmin-password>
+
+nc -v -w 2 <api-server-url> 6443

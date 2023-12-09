@@ -1,0 +1,43 @@
+oc project
+
+oc get pod
+
+oc rsh network-tools
+
+nslookup example.com
+
+oc edit dns.operator/default #add the below under spec
+
+  servers:
+  - forwardPlugin:
+      upstreams:
+      - 1.1.71.19
+    name: broken-dns
+    zones:
+    - example.com
+
+oc delete pod -n openshift-dns -l dns.operator.openshift.io/daemonset-dns=default
+
+oc get pod -n openshift-dns -w
+
+oc logs -f -n openshift-dns -l dns.operator.openshift.io/daemonset-dns=default --max-log-requests 6 #we use "--max-log-requests " because without we get: error: you are attempting to follow 6 log streams, but maximum allowed concurrency is 5, use --max-log-requests to increase the limit
+
+nslookup example.com
+
+oc edit dns.operator/default #remove the below
+
+  servers:
+  - forwardPlugin:
+      upstreams:
+      - 1.1.71.19
+    name: broken-dns
+    zones:
+    - example.com
+
+oc delete pod -n openshift-dns -l dns.operator.openshift.io/daemonset-dns=default
+
+oc get pod -n openshift-dns -w
+
+nslookup example.com
+
+oc delete project test-dns

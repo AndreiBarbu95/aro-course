@@ -1,0 +1,45 @@
+oc get node
+
+oc debug node/<node>
+
+chroot /host
+
+cat /etc/resolv.conf.dnsmasq
+
+oc get pod -o wide -n openshift-dns
+
+oc get svc -A | grep -i image-registry
+
+oc get pod -o wide -n openshift-dns-operator
+
+cat /etc/hosts
+
+oc get machineconfig
+
+oc get machineconfig 99-worker-aro-dns -o yaml
+
+cat /usr/local/bin/aro-dnsmasq-pre.sh
+
+cat /etc/dnsmasq.conf
+
+nslookup management.azure.com #from inside the node
+
+nslookup management.azure.com #from outside the node
+
+oc get svc -n openshift-dns
+
+oc new-project test-dns
+
+oc run network-tools --image quay.io/openshift/origin-network-tools -- sleep infinity
+
+oc rsh network-tools nslookup microsoft.com
+
+oc new-app bitnami/nginx
+
+oc rsh network-tools
+
+cat /etc/resolv.conf
+
+nslookup <pod-ip>.test-dns.pod.cluster.local
+
+nslookup nginx.test-dns.svc.cluster.local

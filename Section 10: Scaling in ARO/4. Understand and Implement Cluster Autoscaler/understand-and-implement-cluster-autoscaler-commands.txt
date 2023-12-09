@@ -1,0 +1,81 @@
+oc get node
+
+oc describe node <worker-node>
+
+oc apply -f - <<EOF
+apiVersion: autoscaling.openshift.io/v1
+kind: ClusterAutoscaler
+metadata:
+  name: default
+spec:
+  resourceLimits:
+    maxNodesTotal: 10
+  scaleDown:
+    delayAfterAdd: 10m
+    delayAfterDelete: 5m
+    delayAfterFailure: 10s
+    enabled: true
+EOF
+
+oc explain clusterautoscaler.spec.scaleDown.delayAfterAdd
+
+oc get clusterautoscaler
+
+oc get pod -n openshift-machine-api
+
+#Create MachineAutoscaler from the Console
+
+oc get machineautoscaler -n openshift-machine-api
+
+oc new-project test-cas
+
+oc apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-cas
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: test-cas
+  template:
+    metadata:
+      labels:
+        app: test-cas
+    spec:
+      containers:
+      - name: nginx
+        image: bitnami/nginx
+        resources:
+          requests:
+            memory: "2Gi"
+      nodeSelector:
+        topology.kubernetes.io/zone: eastus-1
+EOF
+
+oc get pod -o wide
+
+oc describe pod <test-cas-pod>
+
+oc get machineset,machine -n openshift-machine-api
+
+oc get node
+
+oc get pod -n openshift-machine-api
+
+oc logs -n openshift-machine-api <cluster-autoscaler-pod>
+
+oc delete project test-cas
+
+oc get machine -n openshift-machine-api #wait until the extra machine gets removed
+
+oc logs -n openshift-machine-api <cluster-autoscaler-pod>
+
+oc get clusterautoscaler
+
+oc get machineautoscaler -n openshift-machine-api
+
+oc delete machineautoscaler <machine-autoscaler-name> -n openshift-machine-api
+
+oc delete clusterautoscaler default

@@ -1,0 +1,47 @@
+oc new-project demo
+
+oc run client --image andreibarbu95/my-aro-web-app:v1
+
+oc run server --image andreibarbu95/my-aro-web-app:v1
+
+oc get pod -o wide
+
+oc rsh client
+
+curl --connect-timeout 5 <server-pod-ip>:8080
+
+cat network-policy.yaml
+
+oc apply -f network-policy.yaml
+
+oc get netpol
+
+oc describe netpol demo-policy
+
+curl --connect-timeout 5 <server-pod-ip>:8080
+
+oc get pod --show-labels
+
+oc label pod client app=client
+
+oc get pod --show-labels
+
+curl --connect-timeout 5 <server-pod-ip>:8080
+
+oc rsh server
+
+curl 147.75.40.148 --connect-timeout 5 -v
+
+nslookup microsoft.com | grep 20.236.44.162
+
+curl 20.236.44.162 --connect-timeout 5 -v
+
+vim network-policy.yaml #uncomment the commented lines
+
+oc apply -f network-policy.yaml
+
+curl 147.75.40.148 --connect-timeout 5 -v
+
+curl 20.236.44.162 --connect-timeout 5 -v
+
+oc delete project demo

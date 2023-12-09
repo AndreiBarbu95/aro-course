@@ -1,0 +1,9 @@
+oc get cluster.aro.openshift.io cluster -o go-template='{{ if .spec.gatewayDomains }}{{ "Egress Lockdown Feature Enabled" }}{{ else }}{{ "Egress Lockdown Feature Disabled" }}{{ end }}{{ "\n" }}'
+
+oc get node
+
+oc debug node/<node>
+
+chroot /host
+
+cat /etc/dnsmasq.conf

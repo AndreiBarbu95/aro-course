@@ -1,0 +1,9 @@
+oc get machineset -n openshift-machine-api
+
+oc scale machineset -n openshift-machine-api <machineset> --replicas=2
+or
+oc edit machineset -n openshift-machine-api <machineset> #modify replicas
+
+oc get machineset -n openshift-machine-api
+
+oc get machine -n openshift-machine-api

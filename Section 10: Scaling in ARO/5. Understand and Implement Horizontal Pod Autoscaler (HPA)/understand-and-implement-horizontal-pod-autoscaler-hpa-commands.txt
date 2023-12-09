@@ -1,0 +1,18 @@
+oc new-project test-hpa
+
+oc new-app andreibarbu95/my-aro-web-app:v1
+
+oc set resources deployment my-aro-web-app --requests=cpu=100m --limits=cpu=200m
+
+oc autoscale deployment my-aro-web-app --cpu-percent=50 --min=1 --max=10
+
+oc get hpa -w
+
+oc run load-generator --image andreibarbu95/my-aro-web-app:v1
+
+oc rsh load-generator
+
+while sleep 0.01; do wget -q -O- http://my-aro-web-app:8080; done
+
+oc delete project test-hpa
+

@@ -1,0 +1,3 @@
+oc get pod -o wide -n openshift-ovn-kubernetes
+
+oc get pod -n openshift-ovn-kubernetes <pod-name> -o jsonpath='{.spec.containers[*].name}'
