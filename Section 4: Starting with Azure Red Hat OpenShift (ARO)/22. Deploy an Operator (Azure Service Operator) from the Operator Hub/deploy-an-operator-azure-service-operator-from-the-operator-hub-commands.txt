@@ -1,0 +1,35 @@
+az account show #obtain the TENANT and SUBSCRIPTION IDs
+
+AZURE_TENANT_ID=<tenant-id>
+AZURE_SUBSCRIPTION_ID=<subscription-id>
+
+az ad sp create-for-rbac -n "azure-service-operator" --role contributor \
+    --scopes /subscriptions/$AZURE_SUBSCRIPTION_ID
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: azureoperatorsettings
+  namespace: openshift-operators
+stringData:
+  AZURE_TENANT_ID: <your-tenant-id-goes-here>
+  AZURE_SUBSCRIPTION_ID: <your-subscription-id-goes-here>
+  AZURE_CLIENT_ID: <your-client-id>
+  AZURE_CLIENT_SECRET: <your-client-secret>
+  AZURE_CLOUD_ENV: <your-azure-cloud-environment>
+EOF
+
+#Install the Operator
+
+oc get pod -n openshift-operators
+
+az ad sp delete --id <app-id>
+
+oc get secret -n openshift-operators
+
+oc delete secret azureoperatorsettings  -n openshift-operators
+
+oc get secret -n openshift-operators
+
+oc get pod -n openshift-operators
