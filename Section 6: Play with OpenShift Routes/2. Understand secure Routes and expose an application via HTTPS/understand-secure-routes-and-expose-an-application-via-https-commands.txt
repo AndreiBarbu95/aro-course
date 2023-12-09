@@ -1,0 +1,17 @@
+oc edit route my-aro-web-app #add the below under spec
+
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+	
+oc get ingresscontroller -A
+	
+oc get ingresscontroller default -n openshift-ingress-operator -o yaml
+
+oc get secret -n openshift-ingress
+
+oc describe secret -n openshift-ingress <secret-name>
+
+oc extract secret/<secret-name> -n openshift-ingress
+
+openssl x509 -in tls.crt -text -noout

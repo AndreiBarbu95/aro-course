@@ -1,0 +1,5 @@
+oc new-project play-with-routes
+
+oc new-app andreibarbu95/my-aro-web-app:v1
+
+oc expose svc my-aro-web-app

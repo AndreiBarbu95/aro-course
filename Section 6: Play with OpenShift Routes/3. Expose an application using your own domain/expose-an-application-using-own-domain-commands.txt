@@ -1,0 +1,19 @@
+oc project
+
+oc get route -n play-with-routes
+
+oc new-project custom-domain
+
+oc new-app --name custom-domain-app --image bitnami/nginx
+
+oc expose svc -h
+
+oc get svc -n openshift-ingress router-default
+
+oc expose svc custom-domain-app --hostname app.<your-domain>
+
+oc get route
+
+curl -v http://app.<your-domain>
+
+oc delete project play-with-routes custom-domain
