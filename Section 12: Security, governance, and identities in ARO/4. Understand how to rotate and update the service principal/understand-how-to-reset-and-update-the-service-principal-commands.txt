@@ -1,0 +1,7 @@
+oc get secret -n kube-system azure-credentials
+
+oc get secret -n kube-system azure-credentials -o yaml
+
+echo "<azure_client_id>" | base64 -d
+
+echo "<azure_client_secret>" | base64 -d

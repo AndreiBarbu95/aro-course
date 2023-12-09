@@ -1,0 +1,61 @@
+oc get sc
+
+oc get sc managed-csi -o yaml
+
+oc new-project disk-dynamic
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: azure-disk-pvc-dynamic
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: managed-csi
+  resources:
+    requests:
+      storage: 5Gi
+EOF
+
+oc get pv,pvc
+
+oc describe pvc azure-disk-pvc-dynamic
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: azure-disk-dynamic-pod
+spec:
+  containers:
+  - image: bitnami/nginx
+    name: azure-disk-static-pod
+    volumeMounts:
+      - name: azure
+        mountPath: /mnt/azure
+  volumes:
+    - name: azure
+      persistentVolumeClaim:
+        claimName: azure-disk-pvc-dynamic
+EOF
+
+oc get pod,pv,pvc
+
+oc describe pod azure-disk-dynamic-pod
+
+oc rsh azure-disk-dynamic-pod
+
+df -h /mnt/azure
+
+cd /mnt/azure
+
+ls
+
+oc delete pod azure-disk-dynamic-pod
+
+oc delete pvc azure-disk-pvc-dynamic
+
+oc get pv,pvc
+
+oc delete project disk-dynamic

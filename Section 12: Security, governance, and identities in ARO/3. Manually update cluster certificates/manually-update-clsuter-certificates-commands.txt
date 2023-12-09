@@ -1,0 +1,23 @@
+curl https://<api-server>:6443 -k -v 2>&1 |grep expire
+
+oc get node
+
+oc debug node/<node>
+
+chroot /host
+
+cd /etc/kubernetes
+
+ls
+
+openssl x509 -in ca.crt -noout -enddate
+
+oc get ingresscontroller default -n openshift-ingress-operator -o yaml
+
+oc get secret -n openshift-ingress
+
+oc describe secret -n openshift-ingress <secret-name>
+
+oc extract secret/<secret-name> -n openshift-ingress
+
+openssl x509 -in tls.crt -noout -enddate

@@ -1,0 +1,65 @@
+oc new-project test-csi-secret-store
+
+oc create secret generic secrets-store-creds --from-literal clientid="<cliend-id>" --from-literal clientsecret="<client-secret>"
+
+oc label secret secrets-store-creds secrets-store.csi.k8s.io/used=true
+
+oc apply -f - <<EOF
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: akvprovider-demo
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "false"
+    keyvaultName: <akv-name>
+    cloudName:                           # Defaults to AzurePublicCloud
+    objects:  |
+      array:
+        - |
+          objectName: <akv-secret-name>
+          objectType: secret             # object types: secret, key or cert
+          objectVersion: ""              # [OPTIONAL] object versions, default to latest if empty
+    tenantId: <tenant-id>                # The tenant ID of the Azure Key Vault instance
+EOF
+
+oc get SecretProviderClass
+
+oc apply -f - <<EOF
+kind: Pod
+apiVersion: v1
+metadata:
+  name: pod-secrets-store-inline
+spec:
+  containers:
+    - name: nginx
+      image: bitnami/nginx
+      volumeMounts:
+      - name: secrets-store-inline
+        mountPath: "/mnt/secrets-store"
+        readOnly: true
+  volumes:
+    - name: secrets-store-inline
+      csi:
+        driver: secrets-store.csi.k8s.io
+        readOnly: true
+        volumeAttributes:
+          secretProviderClass: "akvprovider-demo"
+        nodePublishSecretRef:                       
+          name: secrets-store-creds
+EOF
+
+oc get pod
+
+oc rsh pod-secrets-store-inline
+
+cd /mnt/secrets-store
+
+ls
+
+cat <akv-secret-name>
+
+oc delete project test-csi-secret-store
+
+oc project default

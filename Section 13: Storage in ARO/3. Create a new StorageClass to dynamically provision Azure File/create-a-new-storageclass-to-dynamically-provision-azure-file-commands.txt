@@ -1,0 +1,97 @@
+RG=aro-rg
+SA_NAME=<storage-account-name>
+
+az storage account create --name $SA_NAME --resource-group $RG --kind StorageV2 --sku Standard_LRS --query id --output tsv
+
+az role assignment create --role Contributor --scope <storage-account-resource-id> --assignee <client-id>
+	
+oc apply -f - <<EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: azure-file-custom-sa
+provisioner: file.csi.azure.com
+mountOptions:
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=0
+  - gid=0
+  - mfsymlinks
+  - cache=strict
+  - actimeo=30
+  - noperm
+parameters:
+  secretNamespace: kube-system
+  skuName: Standard_LRS
+  resourceGroup: aro-rg
+  storageAccount: <storage-account-resource-id>
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+EOF
+
+oc new-project azure-file-dynamic
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azure-file-pvc-dynamic
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azure-file-custom-sa
+  resources:
+    requests:
+      storage: 10Gi
+EOF
+
+oc get pv,pvc
+
+oc get secret -n kube-system | grep azure-storage-account
+
+oc get secret -n kube-system <azure-storage-account-secret> -o yaml
+
+oc apply -f - <<EOF
+kind: Pod
+apiVersion: v1
+metadata:
+  name: azure-file-pod-dynamic
+spec:
+  containers:
+    - name: azure-file-pod-dynamic
+      image: mcr.microsoft.com/oss/nginx/nginx:1.17.3-alpine
+      volumeMounts:
+        - mountPath: /mnt/azure
+          name: volume
+          readOnly: false
+  volumes:
+   - name: volume
+     persistentVolumeClaim:
+       claimName: azure-file-pvc-dynamic
+EOF
+
+oc get pod
+
+oc rsh azure-file-pod-dynamic
+
+df -h /mnt/azure
+
+cd /mnt/azure
+
+echo "This is a test" > test.txt
+
+ls
+
+cat test.txt
+
+oc delete pod azure-file-pod-dynamic
+
+oc delete pvc azure-file-pvc-dynamic
+
+oc delete sc azure-file-custom-sa
+
+oc delete project azure-file-dynamic
+
+oc get pv,pvc
+
+az storage account delete -n $SA_NAME -g $RG

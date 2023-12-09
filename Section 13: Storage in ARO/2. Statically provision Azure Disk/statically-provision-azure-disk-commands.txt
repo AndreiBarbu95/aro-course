@@ -1,0 +1,123 @@
+az disk create --resource-group aro-rg --name azure-disk-static --size-gb 10 --zone 2 --query id --output tsv
+
+az role assignment create --scope <azure-disk-resource-id> --assignee <client-id> --role 'Contributor'
+
+oc new-project disk-static
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+    pv.kubernetes.io/provisioned-by: disk.csi.azure.com
+  name: azure-disk-pv-static
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: managed-csi
+  csi:
+    driver: disk.csi.azure.com
+    volumeHandle: <azure-disk-resource-id>
+    volumeAttributes:
+      fsType: ext4
+EOF
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azure-disk-pvc-static
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  volumeName: azure-disk-pv-static
+  storageClassName: managed-csi
+EOF
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: azure-disk-pod-static
+spec:
+  containers:
+  - image: andreibarbu95/my-aro-web-app:v1
+    name: azure-disk-static-pod
+    volumeMounts:
+      - name: azure
+        mountPath: /mnt/azure
+  volumes:
+    - name: azure
+      persistentVolumeClaim:
+        claimName: azure-disk-pvc-static
+  nodeSelector:
+    topology.disk.csi.azure.com/zone: eastus-2
+EOF
+
+oc get pod,pv,pvc
+
+df -h /mnt/azure
+
+cd /mnt/azure
+
+ls
+
+touch test.txt
+
+oc delete pod azure-disk-pod-static
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: azure-disk-pod-static
+spec:
+  containers:
+  - image: mcr.microsoft.com/oss/nginx/nginx:1.17.3-alpine
+    name: azure-disk-static-pod
+    volumeMounts:
+      - name: azure
+        mountPath: /mnt/azure
+  volumes:
+    - name: azure
+      persistentVolumeClaim:
+        claimName: azure-disk-pvc-static
+  nodeSelector:
+    topology.disk.csi.azure.com/zone: eastus-2
+EOF
+
+oc get pod
+
+oc rsh azure-disk-pod-static
+
+df -h /mnt/azure
+
+cd /mnt/azure
+
+ls
+
+touch test.txt
+
+echo "This is a test" > test.txt
+
+ls
+
+cat test.txt
+
+oc delete pvc azure-disk-pvc-static
+
+oc delete pod azure-disk-pod-static
+
+oc get pvc
+
+oc delete pv azure-disk-pv-static
+
+oc delete project disk-static
+
+az disk delete --name azure-disk-static --resource-group aro-rg

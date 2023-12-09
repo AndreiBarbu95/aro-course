@@ -1,0 +1,155 @@
+RG=aro-rg
+SA_NAME=<storage-account-name>
+SHARE_NAME=aroshare
+
+az storage account create -n $SA_NAME -g $RG --sku Standard_LRS
+
+export AZURE_STORAGE_CONNECTION_STRING=$(az storage account show-connection-string -n $SA_NAME -g $RG -o tsv)
+
+az storage share create -n $SHARE_NAME --connection-string $AZURE_STORAGE_CONNECTION_STRING
+
+STORAGE_KEY=$(az storage account keys list --resource-group $RG --account-name $SA_NAME --query "[0].value" -o tsv)
+
+echo Storage account key: $STORAGE_KEY
+
+oc new-project azure-file-static
+
+oc create secret generic azure-secret --from-literal=azurestorageaccountname=$SA_NAME --from-literal=azurestorageaccountkey=$STORAGE_KEY
+
+oc create clusterrole azure-secret-reader --verb=create,get --resource=secrets
+
+oc adm policy add-cluster-role-to-user azure-secret-reader system:serviceaccount:openshift-cluster-csi-drivers:azure-file-csi-driver-node-sa #the OpenShift persistent volume binder service account requires the ability to read secrets
+
+#Mount as in line volume:
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: azure-file-pod-static-inline
+spec:
+  containers:
+    - image: mcr.microsoft.com/oss/nginx/nginx:1.17.3-alpine
+      name: azure-file-static-pod-inline
+      volumeMounts:
+        - name: azure
+          mountPath: /mnt/azure
+          readOnly: false
+  volumes:
+    - name: azure
+      csi: 
+        driver: file.csi.azure.com
+        volumeAttributes:
+          secretName: azure-secret
+          shareName: aroshare
+          mountOptions: 'dir_mode=0777,file_mode=0777,cache=strict,actimeo=30,nosharesock'
+EOF
+
+oc get pod
+
+oc rsh azure-file-pod-static-inline
+
+cd /mnt/azure
+
+echo "This is a text from the inline pod." > test.txt
+
+ls
+
+cat test.txt
+
+#Mount as PVC:
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  annotations:
+    pv.kubernetes.io/provisioned-by: file.csi.azure.com
+  name: azure-file-pv-static
+spec:
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: azurefile-csi
+  csi:
+    driver: file.csi.azure.com
+    volumeHandle: /subscriptions/<subscription-id>/resourceGroups/aro-rg/providers/Microsoft.Storage/storageAccounts/<storage-account-name>
+    volumeAttributes:
+      resourceGroup: aro-rg
+      shareName: aroshare
+    nodeStageSecretRef:
+      name: azure-secret
+      namespace: azure-file-static
+  mountOptions:
+    - dir_mode=0777
+    - file_mode=0777
+    - uid=0
+    - gid=0
+    - mfsymlinks
+    - cache=strict
+    - nosharesock
+    - nobrl
+EOF
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azure-file-pvc-static
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azurefile-csi
+  volumeName: azure-file-pv-static
+  resources:
+    requests:
+      storage: 5Gi
+EOF
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: azure-file-static-pod-pvc
+spec:
+  containers:
+  - image: mcr.microsoft.com/oss/nginx/nginx:1.17.3-alpine
+    name: azure-disk-static-pod
+    volumeMounts:
+      - name: azure
+        mountPath: /mnt/azure
+  volumes:
+    - name: azure
+      persistentVolumeClaim:
+        claimName: azure-file-pvc-static
+EOF
+
+oc get pv,pvc,pod
+
+oc rsh azure-file-static-pod-pvc
+
+cd /mnt/azure
+
+ls
+
+cat test.txt
+
+oc delete clusterrole azure-secret-reader
+
+oc get clusterrolebinding | grep -i azure-secret-reader
+
+oc delete clusterrolebinding azure-secret-reader
+
+oc delete secret azure-secret
+
+oc delete pod azure-file-pod-static-inline azure-file-static-pod-pvc
+
+oc delete pvc azure-file-pvc-static
+
+oc delete pv azure-file-pv-static
+
+oc delete project azure-file-static
+
+az storage account delete -n $SA_NAME -g $RG

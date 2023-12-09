@@ -1,0 +1,90 @@
+oc project default
+
+oc run test-policy-pod --image bitnami/nginx
+
+oc get pod
+
+oc new-project test-azure-policy
+
+oc apply -f - <<EOF
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-policy-limits
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-policy
+  template:
+    metadata:
+      labels:
+        app: test-policy
+    spec:
+      containers:
+      - name: test-policy
+        image: bitnami/nginx
+        resources:
+          limits:
+            cpu: 600m
+            memory: 1.1Gi
+EOF
+
+oc get pod
+
+oc get pod -A | grep -i policy
+
+oc get crd | grep -i constraint
+
+oc get constrainttemplate
+
+oc describe k8sazurev3containerlimits
+
+oc describe k8sazurev3containerlimits | grep -i violation
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-limits-nginx
+spec:
+  containers:
+  - name: nginx
+    image: bitnami/nginx
+    resources:
+      limits:
+        memory: "2Gi"
+        cpu: "500m"
+EOF
+
+oc get all -n gatekeeper-system
+
+oc get constrainttemplate
+
+oc describe k8sazurev1blockdefault
+
+oc run test-policy-pod2 --image bitnami/nginx -n default
+
+oc apply -f - <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-policy-pod2
+  namespace: default
+spec:
+  containers:
+  - name: test-policy-pod2
+    image: bitnami/nginx
+    resources:
+      limits:
+        memory: "1Gi"
+        cpu: "200m"
+EOF
+
+oc get pod -n default
+
+oc delete pod test-policy-pod test-policy-pod2 -n default
+
+oc delete project test-azure-policy
+
+oc project default
